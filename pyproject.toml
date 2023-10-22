@@ -15,6 +15,7 @@ dependencies = []
 [project.optional-dependencies]
 aws = [
     "aws-cdk-lib~=2.102",
+    "aws-cdk-github-oidc~=2.4",
 ]
 dev = [
     "objectobject.ca[aws]",

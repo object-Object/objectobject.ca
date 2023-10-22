@@ -29,3 +29,7 @@ aws_credentials_file: /home/object/codedeploy/temporary-credentials
 region: us-east-1
 ```
 * Run this somewhere with AWS power user permissions: `aws deploy register-on-premises-instance --instance-name objectobject-ca --iam-session-arn ...`
+* Edit `/etc/codedeploy-agent/conf/codedeployagent.yml`, add this line:
+```yml
+:deploy_control_endpoint: 'https://codedeploy-commands.us-east-1.amazonaws.com'
+```

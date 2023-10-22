@@ -1,7 +1,8 @@
 import logging
 
 import aws_cdk as cdk
-from aws_cdk import aws_iam as iam
+from aws_cdk import aws_iam as iam, aws_s3 as s3
+from aws_cdk_github_oidc import GithubActionsIdentityProvider, GithubActionsRole
 from constructs import Construct
 
 BASE_STACK_NAME = "objectobject-ca"
@@ -14,6 +15,8 @@ class ObjectObjectStack(cdk.Stack):
         *,
         deployment_stage: str,
         env: cdk.Environment,
+        oidc_owner: str,
+        oidc_environment: str,
     ):
         stack_name = f"{deployment_stage}-{BASE_STACK_NAME}"
 
@@ -25,17 +28,40 @@ class ObjectObjectStack(cdk.Stack):
             env=env,
         )
 
-        # service
+        # external resources
 
-        iam.Role(
+        cdk_role_proxy = iam.Role.from_role_arn(
             self,
-            "CodeDeployServiceRole",
-            assumed_by=iam.ServicePrincipal("codedeploy.amazonaws.com"),
-            managed_policies=[
-                iam.ManagedPolicy.from_aws_managed_policy_name(
-                    "service-role/AWSCodeDeployRole"
-                ),
-            ],
+            "CDKRoleProxy",
+            f"arn:aws:iam::{self.account}:role/cdk-*",
+        )
+
+        # OpenID Connect
+
+        github_oidc_provider = GithubActionsIdentityProvider(
+            self,
+            "GitHubOIDCProvider",
+        )
+
+        # GitHub Actions
+
+        github_actions_cdk_role = GithubActionsRole(
+            self,
+            "GitHubActionsCDKRole",
+            provider=github_oidc_provider,
+            owner=oidc_owner,
+            repo="*",
+            filter=f"environment:{oidc_environment}",
+        )
+        cdk_role_proxy.grant_assume_role(github_actions_cdk_role)
+
+        # artifacts
+
+        artifacts_bucket = s3.Bucket(
+            self,
+            "CodeDeployArtifacts",
+            bucket_name=f"{self.stack_name}-codedeploy-artifacts",
+            removal_policy=cdk.RemovalPolicy.DESTROY,
         )
 
         # instance
@@ -50,13 +76,20 @@ class ObjectObjectStack(cdk.Stack):
             "CodeDeployInstanceRole",
             assumed_by=instance_user,
         )
-        instance_role.add_to_policy(
-            iam.PolicyStatement(
-                actions=[
-                    "s3:Get*",
-                    "s3:List*",
-                ],
-                resources=["*"],
-            )
-        )
+        artifacts_bucket.grant_read(instance_role)
+
         instance_role.grant_assume_role(instance_user)
+
+        # outputs
+
+        cdk.CfnOutput(
+            self,
+            "GitHubActionsCDKRoleARN",
+            value=github_actions_cdk_role.role_arn,
+        )
+
+        cdk.CfnOutput(
+            self,
+            "CodeDeployArtifactsBucketName",
+            value=artifacts_bucket.bucket_name,
+        )
