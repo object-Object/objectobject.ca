@@ -48,6 +48,8 @@ known_first_party = [
 pythonVersion = "3.11"
 pythonPlatform = "All"
 
+exclude = ["venv"]
+
 enableExperimentalFeatures = true
 
 typeCheckingMode = "basic"
