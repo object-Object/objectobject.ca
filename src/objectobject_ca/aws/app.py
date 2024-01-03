@@ -17,6 +17,9 @@ def init_stacks(app: Construct):
         ),
         oidc_owner="object-Object",
         oidc_environment="prod-aws-cdk",
+        instance_secure_string_parameter_names=[
+            "/prod/HexBug/health-check-url",
+        ],
     )
 
 
