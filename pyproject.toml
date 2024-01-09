@@ -19,14 +19,8 @@ aws-cdk = [
 ]
 dev = [
     "objectobject.ca[aws-cdk]",
-    "black==23.7.0",
-    "isort==5.12.0",
+    "ruff~=0.1.11",
     "pytest~=7.3",
-]
-
-[tool.hatch.build.targets.sdist]
-only-include = [
-    "src/objectobject_ca",
 ]
 
 [tool.hatch.build.targets.wheel]
@@ -37,12 +31,26 @@ packages = [
 [tool.pytest.ini_options]
 addopts = ["--import-mode=importlib"]
 
-[tool.isort]
-profile = "black"
-combine_as_imports = true
-known_first_party = [
-    "objectobject_ca",
+[tool.ruff]
+extend-select = [
+    "I", # import sorting
 ]
+extend-ignore = [
+    # covered by Pyright
+    "F821", # undefined variable
+    "F401", # imported but unused
+    "F841", # unused variable
+]
+extend-exclude = [
+    "vendor",
+    "venv",
+    "**/.*",
+    "**/node_modules",
+    "**/__pycache__",
+]
+
+[tool.ruff.lint.isort]
+combine-as-imports = true
 
 [tool.pyright]
 pythonVersion = "3.11"
