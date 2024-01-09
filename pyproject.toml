@@ -10,15 +10,15 @@ authors = [
 ]
 license = { file = "LICENSE" }
 requires-python = ">=3.11"
-dependencies = []
-
-[project.optional-dependencies]
-aws-cdk = [
+dependencies = [
     "aws-cdk-lib~=2.102",
     "aws-cdk-github-oidc~=2.4",
+    "cdktf~=0.19",
+    "cdktf-cdktf-provider-cloudflare~=10.0",
 ]
+
+[project.optional-dependencies]
 dev = [
-    "objectobject.ca[aws-cdk]",
     "ruff~=0.1.11",
     "pytest~=7.3",
 ]

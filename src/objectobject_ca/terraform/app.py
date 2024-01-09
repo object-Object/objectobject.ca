@@ -1,39 +1,34 @@
 import logging
 from typing import TypedDict
 
-import aws_cdk as cdk
+import cdktf
 
 from ..common.logging import setup_logging
-from .stack import AWSStack
+from .stack import TerraformStack
 
 logger = logging.getLogger(__name__)
 
 
 class CommonKwargs(TypedDict):
-    oidc_owner: str
+    organization: str
+    workspace: str
 
 
 def main():
     setup_logging()
 
     logger.info("Ready.")
-    app = cdk.App()
+    app = cdktf.App()
 
     common = CommonKwargs(
-        oidc_owner="object-Object",
+        organization="object-Object",
+        workspace="objectobject-ca",
     )
 
-    AWSStack(
+    TerraformStack(
         app,
         "prod",
-        env=cdk.Environment(
-            account="511603859520",
-            region="us-east-1",
-        ),
-        oidc_environment="prod-aws-cdk",
-        instance_secure_string_parameter_names=[
-            "/prod/HexBug/*",
-        ],
+        zone_id="c34ef372a8d773ca057615c8a85d719c",
         **common,
     )
 

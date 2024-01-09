@@ -15,8 +15,8 @@ class AWSStack(cdk.Stack):
     def __init__(
         self,
         scope: Construct,
-        *,
         deployment_stage: str,
+        *,
         env: cdk.Environment,
         oidc_owner: str,
         oidc_environment: str,
