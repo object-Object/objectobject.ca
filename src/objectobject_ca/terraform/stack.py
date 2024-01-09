@@ -35,7 +35,7 @@ class TerraformStack(cdktf.TerraformStack):
 
         for record_type, name, value, priority, proxied in [
             # main vps
-            ("A", "objectobject.ca", VULTR_VPS, 0, False),
+            ("A", "@", VULTR_VPS, 0, False),
             ("A", "www", VULTR_VPS, 0, False),
             ("A", "fragments", VULTR_VPS, 0, False),
             ("A", "hex", VULTR_VPS, 0, False),
@@ -48,11 +48,11 @@ class TerraformStack(cdktf.TerraformStack):
             # email forwarding
             ("CNAME", "_dmarc", "dmarcforward.emailowl.com", 0, False),
             ("CNAME", "dkim._domainkey", "dkim._domainkey.srs.emailowl.com", 0, False),
-            ("MX", "", "mx4.emailowl.com", 10, False),
-            ("MX", "", "mx5.emailowl.com", 10, False),
-            ("MX", "", "mx6.emailowl.com", 10, False),
+            ("MX", "@", "mx4.emailowl.com", 10, False),
+            ("MX", "@", "mx5.emailowl.com", 10, False),
+            ("MX", "@", "mx6.emailowl.com", 10, False),
             # i have no idea what this is for
-            ("TXT", "", "v=spf1 a mx ~all", 0, False),
+            ("TXT", "@", "v=spf1 a mx ~all", 0, False),
         ]:
             record.Record(
                 self,
