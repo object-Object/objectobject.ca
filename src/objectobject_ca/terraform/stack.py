@@ -40,10 +40,12 @@ class TerraformStack(cdktf.TerraformStack):
                 # main server
                 "@": VULTR_VPS,
                 "www": VULTR_VPS,
+                "derp": VULTR_VPS,
                 "fragments": VULTR_VPS,
+                "znc": VULTR_VPS,
+                # main server, but not in the SSL cert (idk what these are for)
                 "hex": VULTR_VPS,
                 "nebula": VULTR_VPS,
-                "znc": VULTR_VPS,
                 # external stuff
                 "dev.hexxycraft": "131.186.1.24",
                 "hexxycraft": "23.139.82.245",
