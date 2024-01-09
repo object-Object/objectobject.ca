@@ -4,10 +4,10 @@ import logging
 def setup_logging(verbose: bool = False):
     if verbose:
         level = logging.DEBUG
-        fmt = "[ {asctime} | {name} | {levelname} ]  {message}"
+        fmt = "[{asctime} | {name} | {levelname}] {message}"
     else:
         level = logging.INFO
-        fmt = "[ {asctime} | {levelname} ]  {message}"
+        fmt = "[{levelname}] {message}"
 
     logging.basicConfig(
         style="{",
