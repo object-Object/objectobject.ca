@@ -1,5 +1,6 @@
 import logging
 import os
+from typing import Any
 
 import cdktf
 from cdktf_cdktf_provider_cloudflare import provider, record
@@ -33,34 +34,93 @@ class TerraformStack(cdktf.TerraformStack):
             api_token=os.getenv("CLOUDFLARE_API_TOKEN"),
         )
 
-        for record_type, name, value, priority, proxied in [
-            # main vps
-            ("A", "@", VULTR_VPS, 0, False),
-            ("A", "www", VULTR_VPS, 0, False),
-            ("A", "fragments", VULTR_VPS, 0, False),
-            ("A", "hex", VULTR_VPS, 0, False),
-            ("A", "nebula", VULTR_VPS, 0, False),
-            ("A", "znc", VULTR_VPS, 0, False),
-            # external
-            ("A", "dev.hexxycraft", "131.186.1.24", 0, False),
-            ("A", "hexxycraft", "23.139.82.245", 0, False),
-            ("A", "jupyter", "3.19.84.159", 0, False),
-            # email forwarding
-            ("CNAME", "_dmarc", "dmarcforward.emailowl.com", 0, False),
-            ("CNAME", "dkim._domainkey", "dkim._domainkey.srs.emailowl.com", 0, False),
-            ("MX", "@", "mx4.emailowl.com", 10, False),
-            ("MX", "@", "mx5.emailowl.com", 10, False),
-            ("MX", "@", "mx6.emailowl.com", 10, False),
-            # i have no idea what this is for
-            ("TXT", "@", "v=spf1 a mx ~all", 0, False),
+        # simple records
+        for record_type, records in {
+            "A": {
+                # main server
+                "@": VULTR_VPS,
+                "www": VULTR_VPS,
+                "fragments": VULTR_VPS,
+                "hex": VULTR_VPS,
+                "nebula": VULTR_VPS,
+                "znc": VULTR_VPS,
+                # external stuff
+                "dev.hexxycraft": "131.186.1.24",
+                "hexxycraft": "23.139.82.245",
+                "jupyter": "3.19.84.159",
+            },
+            "CNAME": {
+                # email forwarding
+                "_dmarc": "dmarcforward.emailowl.com",
+                "dkim._domainkey": "dkim._domainkey.srs.emailowl.com",
+            },
+        }.items():
+            for name, value in records.items():
+                create_record(
+                    self,
+                    zone_id=zone_id,
+                    type=record_type,
+                    name=name,
+                    value=value,
+                )
+
+        # MX records (email forwarding)
+        for value in [
+            "mx4.emailowl.com",
+            "mx5.emailowl.com",
+            "mx6.emailowl.com",
         ]:
-            record.Record(
+            create_record(
                 self,
-                f"{record_type}_{name}_{value}",
                 zone_id=zone_id,
-                type=record_type,
-                name=name,
+                type="MX",
+                name=None,
                 value=value,
-                proxied=proxied,
-                priority=priority,
+                priority=10,
             )
+
+        # TXT records
+        for value in [
+            # SPF record (email forwarding)
+            "v=spf1 a mx ~all",
+        ]:
+            create_record(
+                self,
+                zone_id=zone_id,
+                type="TXT",
+                name=None,
+                value=value,
+            )
+
+
+def create_record(
+    scope: Construct,
+    *,
+    zone_id: str,
+    type: str,
+    name: str | None,
+    value: str,
+    priority: int | None = None,
+    proxied: bool = False,
+    **kwargs: Any,
+):
+    match name:
+        case "@":
+            id_parts = [type, "ROOT", value]
+        case str():
+            id_parts = [type, name, value]
+        case None:
+            id_parts = [type, value]
+            name = "@"
+
+    return record.Record(
+        scope,
+        "_".join(id_parts).replace(".", "-"),
+        zone_id=zone_id,
+        type=type,
+        name=name,
+        value=value,
+        priority=priority,
+        proxied=proxied,
+        **kwargs,
+    )
