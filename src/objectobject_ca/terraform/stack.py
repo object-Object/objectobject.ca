@@ -56,6 +56,11 @@ class TerraformStack(cdktf.TerraformStack):
                 "_dmarc": "dmarcforward.emailowl.com",
                 "dkim._domainkey": "dkim._domainkey.srs.emailowl.com",
             },
+            "TXT": {
+                "_visual-studio-marketplace-object-object.objectobject.ca": (
+                    "e5005883-39c6-4dc9-87b5-369b0c7fce75"
+                ),
+            },
         }.items():
             for name, value in records.items():
                 create_record(
@@ -81,7 +86,7 @@ class TerraformStack(cdktf.TerraformStack):
                 priority=10,
             )
 
-        # TXT records
+        # root-level TXT records
         for value in [
             # SPF record (email forwarding)
             "v=spf1 a mx ~all",
@@ -109,6 +114,8 @@ def create_record(
     match name:
         case "@":
             id_parts = [type, "ROOT", value]
+        case "*":
+            id_parts = [type, "WILDCARD", value]
         case str():
             id_parts = [type, name, value]
         case None:
