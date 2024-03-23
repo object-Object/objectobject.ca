@@ -24,10 +24,8 @@ jobs:
       - uses: object-Object/ci/setup@v0
         with:
           python-version: ${{ env.PYTHON_VERSION }}
+          python-packages: -e .
           node-version: ${{ env.NODE_VERSION }}
-
-      - name: Install Python package
-        run: uv pip install -e .
 
       - name: Run Terraform CDK
         uses: hashicorp/terraform-cdk-action@v1
@@ -51,11 +49,10 @@ jobs:
       - uses: object-Object/ci/setup@v0
         with:
           python-version: ${{ env.PYTHON_VERSION }}
+          python-packages: -e .
           node-version: ${{ env.NODE_VERSION }}
+          npm-packages: aws-cdk
           role-to-assume: default
 
-      - name: Install Python package
-        run: uv pip install -e .
-      
       - name: Deploy CDK stack
         run: cdk deploy prod --ci --require-approval never --no-lookups
