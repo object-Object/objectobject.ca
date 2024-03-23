@@ -2,9 +2,15 @@ import logging
 from typing import Iterable
 
 import aws_cdk as cdk
-from aws_cdk import aws_iam as iam, aws_s3 as s3, aws_ssm as ssm
+from aws_cdk import (
+    aws_iam as iam,
+    aws_s3 as s3,
+    aws_ssm as ssm,
+)
 from aws_cdk_github_oidc import GithubActionsIdentityProvider, GithubActionsRole
 from constructs import Construct
+
+from .utils.cfn import ResourceTypeActivation
 
 BASE_STACK_NAME = "objectobject-ca"
 
@@ -89,6 +95,14 @@ class AWSStack(cdk.Stack):
             removal_policy=cdk.RemovalPolicy.DESTROY,
         )
         artifacts_bucket.grant_read(instance_role)
+
+        # custom resource types
+        ResourceTypeActivation(
+            self,
+            "CloudflareDnsRecordTypeActivation",
+            type_name="Cloudflare::Dns::Record",
+            source_arn_resource_name="Cloudflare-Dns-Record/*",
+        )
 
         # outputs
 
