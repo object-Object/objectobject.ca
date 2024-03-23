@@ -15,6 +15,7 @@ class ResourceTypeActivation(Construct):
         id: str,
         *,
         type_name: str,
+        publisher_id: str,
         source_arn_resource_name: str,
     ):
         super().__init__(scope, id)
@@ -45,7 +46,9 @@ class ResourceTypeActivation(Construct):
         self.type_activation = cloudformation.CfnTypeActivation(
             self,
             "TypeActivation",
+            type="RESOURCE",
             type_name=type_name,
+            publisher_id=publisher_id,
             execution_role_arn=self.role.role_arn,
         )
 

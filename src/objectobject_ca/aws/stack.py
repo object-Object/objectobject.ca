@@ -101,6 +101,7 @@ class AWSStack(cdk.Stack):
             self,
             "CloudflareDnsRecordTypeActivation",
             type_name="Cloudflare::Dns::Record",
+            publisher_id="c830e97710da0c9954d80ba8df021e5439e7134b",
             source_arn_resource_name="Cloudflare-Dns-Record/*",
         )
 
