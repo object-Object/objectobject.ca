@@ -6,8 +6,8 @@ on:
   workflow_dispatch:
 
 env:
-  AWS_REGION: us-east-1
-  CDK_IAM_ROLE_ARN: arn:aws:iam::511603859520:role/prod-objectobject-ca-GitHubActionsCDKRole19D97701-sweSB0Sp33WN
+  PYTHON_VERSION: 3.11
+  NODE_VERSION: 18
 
 jobs:
   deploy-terraform:
@@ -21,21 +21,18 @@ jobs:
       pull-requests: write
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v3
+      - uses: object-Object/ci/setup@v0
         with:
-          node-version: 18
-      - uses: actions/setup-python@v4
-        with:
-          python-version: "3.11"
-          cache: "pip"
+          python-version: ${{ env.PYTHON_VERSION }}
+          node-version: ${{ env.NODE_VERSION }}
 
       - name: Install Python package
-        run: pip install -e .
+        run: uv pip install -e .
 
       - name: Run Terraform CDK
+        uses: hashicorp/terraform-cdk-action@v1
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-        uses: hashicorp/terraform-cdk-action@v1
         with:
           mode: auto-approve-apply
           stackName: prod
@@ -51,23 +48,14 @@ jobs:
       contents: read
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v3
+      - uses: object-Object/ci/setup@v0
         with:
-          node-version: 18
-      - uses: actions/setup-python@v4
-        with:
-          python-version: "3.11"
-          cache: "pip"
-      - uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-region: ${{ env.AWS_REGION }}
-          role-to-assume: ${{ env.CDK_IAM_ROLE_ARN }}
-
-      - name: Install CDK CLI
-        run: npm install -g aws-cdk
+          python-version: ${{ env.PYTHON_VERSION }}
+          node-version: ${{ env.NODE_VERSION }}
+          role-to-assume: default
 
       - name: Install Python package
-        run: pip install -e .
+        run: uv pip install -e .
       
       - name: Deploy CDK stack
-        run: cdk deploy prod --ci --require-approval never
+        run: cdk deploy prod --ci --require-approval never --no-lookups
