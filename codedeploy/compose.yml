@@ -1,0 +1,24 @@
+services:
+  dozzle:
+    image: amir20/dozzle:latest
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    secrets:
+      - source: users
+        target: /data/users.yml
+    ports:
+      - 5200:8080
+    environment:
+      DOZZLE_HOSTNAME: status.objectobject.ca
+      DOZZLE_BASE: /dozzle
+      DOZZLE_AUTH_PROVIDER: simple
+      DOZZLE_NO_ANALYTICS: true
+    healthcheck:
+      test: ["CMD", "/dozzle", "healthcheck"]
+      interval: 30s
+      timeout: 30s
+      retries: 5
+      start_period: 60s
+secrets:
+  users:
+    file: users.yml

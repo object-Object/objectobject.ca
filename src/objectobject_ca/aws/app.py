@@ -11,6 +11,7 @@ logger = logging.getLogger(__name__)
 
 class CommonKwargs(TypedDict):
     oidc_owner: str
+    oidc_repo: str
 
 
 def main():
@@ -21,6 +22,7 @@ def main():
 
     common = CommonKwargs(
         oidc_owner="object-Object",
+        oidc_repo="objectobject.ca",
     )
 
     AWSStack(
@@ -31,9 +33,7 @@ def main():
             region="us-east-1",
         ),
         oidc_environment="prod-aws-cdk",
-        instance_secure_string_parameter_names=[
-            "/prod/HexBug/*",
-        ],
+        on_premise_instance_tag="prod-objectobject-ca",
         **common,
     )
 

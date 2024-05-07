@@ -1,3 +1,5 @@
+from typing import cast
+
 import aws_cdk as cdk
 from aws_cdk import (
     aws_cloudformation as cloudformation,
@@ -23,23 +25,26 @@ class ResourceTypeActivation(Construct):
         self.role = iam.Role(
             self,
             "ExecutionRole",
-            assumed_by=iam.ServicePrincipal(
-                "resources.cloudformation.amazonaws.com",
-                conditions={
-                    "StringEquals": {
-                        "aws:SourceAccount": self._stack.account,
-                    },
-                    "StringLike": {
-                        "aws:SourceArn": cdk.Arn.format(
-                            cdk.ArnComponents(
-                                service="cloudformation",
-                                resource="type/resource",
-                                resource_name=source_arn_resource_name,
+            assumed_by=cast(
+                iam.IPrincipal,
+                iam.ServicePrincipal(
+                    "resources.cloudformation.amazonaws.com",
+                    conditions={
+                        "StringEquals": {
+                            "aws:SourceAccount": self._stack.account,
+                        },
+                        "StringLike": {
+                            "aws:SourceArn": cdk.Arn.format(
+                                cdk.ArnComponents(
+                                    service="cloudformation",
+                                    resource="type/resource",
+                                    resource_name=source_arn_resource_name,
+                                ),
+                                self._stack,
                             ),
-                            self._stack,
-                        ),
+                        },
                     },
-                },
+                ),
             ),
         )
 

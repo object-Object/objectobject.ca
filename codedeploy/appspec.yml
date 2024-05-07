@@ -1,0 +1,13 @@
+version: 0.0
+os: linux 
+files:
+  - source: /
+    destination: /var/lib/codedeploy-apps/objectobject-ca
+file_exists_behavior: OVERWRITE
+hooks:
+  ApplicationStop:
+    - location: hooks/application-stop.sh
+      timeout: 60
+  ApplicationStart:
+    - location: hooks/application-start.sh
+      timeout: 120

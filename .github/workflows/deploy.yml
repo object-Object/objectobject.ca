@@ -44,15 +44,84 @@ jobs:
     permissions:
       id-token: write
       contents: read
+    outputs:
+      stack-name: ${{ steps.deploy.outputs.StackName }}
+      application-name: ${{ steps.deploy.outputs.ApplicationName }}
+      deployment-group-name: ${{ steps.deploy.outputs.DeploymentGroupName }}
+      iam-role-arn: ${{ steps.deploy.outputs.ActionsCodeDeployRoleARN }}
+      artifacts-bucket-name: ${{ steps.deploy.outputs.CodeDeployArtifactsBucketName }}
     steps:
       - uses: actions/checkout@v4
       - uses: object-Object/ci/setup@v0
         with:
           python-version: ${{ env.PYTHON_VERSION }}
-          python-packages: -e .
+          python-packages: nox
           node-version: ${{ env.NODE_VERSION }}
           npm-packages: aws-cdk
           role-to-assume: default
 
       - name: Deploy CDK stack
-        run: cdk deploy prod --ci --require-approval never --no-lookups
+        id: deploy
+        run: nox --session synth deploy_cdk_ci
+
+  deploy-codedeploy:
+    needs: deploy-aws-cdk
+    runs-on: ubuntu-latest
+    env:
+      STACK_NAME: ${{ needs.deploy-aws-cdk.outputs.stack-name }}
+      APPLICATION_NAME: ${{ needs.deploy-aws-cdk.outputs.application-name }}
+      DEPLOYMENT_GROUP_NAME: ${{ needs.deploy-aws-cdk.outputs.deployment-group-name }}
+      S3_BUCKET: ${{ needs.deploy-aws-cdk.outputs.artifacts-bucket-name }}
+      IAM_ROLE_ARN: ${{ needs.deploy-aws-cdk.outputs.iam-role-arn }}
+    environment:
+      name: prod-codedeploy
+      url: ${{ steps.create-deployment.outputs.url }}
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: object-Object/ci/setup@v0
+        with:
+          python-version: 3.11
+          role-to-assume: ${{ env.IAM_ROLE_ARN }}
+
+      - name: Create users.yml file
+        run: |
+          cat <<EOF > codedeploy/users.yml
+          users:
+            object:
+              name: "[object Object]"
+              password: ${{ secrets.DOZZLE_PASSWORD_SHA }}
+              email: object@objectobject.ca
+          EOF
+
+      - name: Upload deployment bundle to S3
+        id: upload-bundle
+        run: |
+          S3_KEY="${{ env.STACK_NAME }}/${{ github.sha }}.zip"
+          echo "s3-key=$S3_KEY" >> "$GITHUB_OUTPUT"
+          aws deploy push \
+            --application-name ${{ env.APPLICATION_NAME }} \
+            --s3-location s3://${{ env.S3_BUCKET }}/$S3_KEY \
+            --source codedeploy
+
+      - name: Create CodeDeploy deployment
+        id: create-deployment
+        run: |
+          response="$(aws deploy create-deployment \
+            --application-name ${{ env.APPLICATION_NAME }} \
+            --deployment-group-name ${{ env.DEPLOYMENT_GROUP_NAME }} \
+            --s3-location "bucket=${{ env.S3_BUCKET }},key=${{ steps.upload-bundle.outputs.s3-key }},bundleType=zip")"
+          
+          deployment_id="$(echo "$response" | jq '.deploymentId' --raw-output)"
+          url="https://us-east-1.console.aws.amazon.com/codesuite/codedeploy/deployments/${deployment_id}?region=us-east-1"
+          echo "Deployment URL: $url"
+
+          echo "deployment-id=$deployment_id" >> "$GITHUB_OUTPUT"
+          echo "url=$url" >> "$GITHUB_OUTPUT"
+
+      - name: Wait for deployment to finish
+        run: |
+          aws deploy wait deployment-successful \
+            --deployment-id ${{ steps.create-deployment.outputs.deployment-id }}

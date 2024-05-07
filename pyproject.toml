@@ -21,6 +21,7 @@ dependencies = [
 dev = [
     "ruff~=0.1.11",
     "pytest~=7.3",
+    "nox",
 ]
 
 [tool.hatch.build.targets.wheel]

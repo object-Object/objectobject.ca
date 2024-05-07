@@ -46,10 +46,11 @@ class TerraformStack(cdktf.TerraformStack):
                 # main server, but not in the SSL cert (idk what these are for)
                 "hex": VULTR_VPS,
                 "nebula": VULTR_VPS,
+                "status": VULTR_VPS,
                 # external stuff
                 "dev.hexxycraft": "131.186.1.24",
-                #"hexxycraft": "23.139.82.245",
-                #"jupyter": "3.19.84.159",
+                # "hexxycraft": "23.139.82.245",
+                # "jupyter": "3.19.84.159",
             },
             "CNAME": {
                 # email forwarding
