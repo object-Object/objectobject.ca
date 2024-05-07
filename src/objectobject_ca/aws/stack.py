@@ -26,7 +26,8 @@ class AWSStack(cdk.Stack):
         oidc_owner: str,
         oidc_repo: str,
         on_premise_instance_tag: str,
-        oidc_environment: str,
+        oidc_env_cdk: str,
+        oidc_env_codedeploy: str,
     ):
         stack_name = f"{deployment_stage}-{BASE_STACK_NAME}"
 
@@ -59,7 +60,7 @@ class AWSStack(cdk.Stack):
             provider=github_oidc_provider,
             owner=oidc_owner,
             repo="*",  # *all* of my repos assume this role, not just this one
-            filter=f"environment:{oidc_environment}",
+            filter=f"environment:{oidc_env_cdk}",
         )
         cdk_role_proxy.grant_assume_role(github_actions_cdk_role)
 
@@ -124,7 +125,7 @@ class AWSStack(cdk.Stack):
             provider=github_oidc_provider,
             owner=oidc_owner,
             repo=oidc_repo,
-            filter=f"environment:{oidc_environment}",
+            filter=f"environment:{oidc_env_codedeploy}",
         )
         artifacts_bucket.grant_read_write(actions_role)
         actions_role.add_to_policy(

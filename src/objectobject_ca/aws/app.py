@@ -32,7 +32,8 @@ def main():
             account="511603859520",
             region="us-east-1",
         ),
-        oidc_environment="prod-aws-cdk",
+        oidc_env_cdk="prod-aws-cdk",
+        oidc_env_codedeploy="prod-codedeploy",
         on_premise_instance_tag="prod-objectobject-ca",
         **common,
     )
