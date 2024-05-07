@@ -65,7 +65,9 @@ jobs:
         run: nox --session synth deploy_cdk_ci
 
   deploy-codedeploy:
-    needs: deploy-aws-cdk
+    needs:
+      - deploy-aws-cdk
+      - deploy-terraform
     runs-on: ubuntu-latest
     env:
       STACK_NAME: ${{ needs.deploy-aws-cdk.outputs.stack-name }}
