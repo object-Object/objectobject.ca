@@ -1,1 +1,4 @@
 # production overrides for compose.yml
+services:
+  dozzle:
+    restart: always
