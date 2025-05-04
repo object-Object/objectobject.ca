@@ -22,13 +22,15 @@ services:
   
   gatus:
     image: twinproduction/gatus:latest
+    ports:
+      - 5201:8080
     environment:
-      PORT: 5201
       SOCKET_PROXY: http://socket-proxy:2375/v1.45
     volumes:
       - ./gatus:/config
       - gatus_data:/data
-    network_mode: host
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     depends_on:
       - socket-proxy
 
