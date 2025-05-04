@@ -19,7 +19,7 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = [
-    "ruff~=0.1.11",
+    "ruff~=0.11.8",
     "pytest~=7.3",
     "nox",
 ]
@@ -33,21 +33,24 @@ packages = [
 addopts = ["--import-mode=importlib"]
 
 [tool.ruff]
-extend-select = [
-    "I", # import sorting
-]
-extend-ignore = [
-    # covered by Pyright
-    "F821", # undefined variable
-    "F401", # imported but unused
-    "F841", # unused variable
-]
 extend-exclude = [
     "vendor",
     "venv",
     "**/.*",
     "**/node_modules",
     "**/__pycache__",
+]
+
+[tool.ruff.lint]
+extend-select = [
+    "I", # import sorting
+    "RUF022", # __all__ sorting
+]
+extend-ignore = [
+    # covered by Pyright
+    "F821", # undefined variable
+    "F401", # imported but unused
+    "F841", # unused variable
 ]
 
 [tool.ruff.lint.isort]
