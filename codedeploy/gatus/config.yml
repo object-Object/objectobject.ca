@@ -53,6 +53,13 @@ endpoints:
       - "[STATUS] == 200"
       - "[BODY].status == OK"
 
+  - name: hexxy.media-api-postgres
+    group: hexxy.media
+    url: "https://hexxy.media/api/v0/pattern/number/0"
+    conditions:
+      - "[STATUS] == 200"
+      - "[BODY].pattern == aqaa"
+
   - name: hexxy.media-homepage
     group: hexxy.media
     url: https://hexxy.media
