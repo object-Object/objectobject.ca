@@ -19,6 +19,36 @@ services:
       timeout: 30s
       retries: 5
       start_period: 60s
+  
+  gatus:
+    image: twinproduction/gatus:latest
+    ports:
+      - 5201:8080
+    environment:
+      SOCKET_PROXY: http://socket-proxy:2375/v1.45
+    volumes:
+      - ./gatus:/config
+      - gatus_data:/data
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      - socket-proxy
+
+  socket-proxy:
+    image: lscr.io/linuxserver/socket-proxy:latest
+    container_name: socket-proxy
+    environment:
+      - CONTAINERS=1
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    restart: unless-stopped
+    read_only: true
+    tmpfs:
+      - /run
+
 secrets:
   users:
     file: users.yml
+
+volumes:
+  gatus_data:
