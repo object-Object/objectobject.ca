@@ -66,14 +66,6 @@ endpoints:
     conditions:
       - "[STATUS] == 200"
 
-  - name: postgres
-    group: internal
-    url: "tcp://host.docker.internal:5432"
-    conditions:
-      - "[CONNECTED] == true"
-    ui:
-      hide-hostname: true
-
   - name: fragments-wiki
     group: misc
     url: "https://fragments.objectobject.ca/wiki"

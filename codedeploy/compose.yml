@@ -29,8 +29,6 @@ services:
     volumes:
       - ./gatus:/config
       - gatus_data:/data
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
     depends_on:
       - socket-proxy
 
