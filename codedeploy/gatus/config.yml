@@ -14,6 +14,9 @@ storage:
   type: sqlite
   path: /data/data.db
 
+web:
+  port: ${PORT}
+
 ui:
   title: "Gatus @ status.objectobject.ca"
   header: "status.objectobject.ca"
@@ -61,7 +64,7 @@ endpoints:
 
   - name: postgres
     group: internal
-    url: "tcp://host.docker.internal:5432"
+    url: "tcp://localhost:5432"
     conditions:
       - "[CONNECTED] == true"
     ui:
