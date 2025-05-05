@@ -88,15 +88,22 @@ jobs:
           python-version: 3.11
           role-to-assume: ${{ env.IAM_ROLE_ARN }}
 
-      - name: Create users.yml file
+      - name: Create runtime files
+        working-directory: codedeploy
         run: |
-          cat <<EOF > codedeploy/users.yml
+          cat <<END_OF_FILE > users.yml
           users:
             object:
               name: "[object Object]"
               password: ${{ secrets.DOZZLE_PASSWORD_SHA }}
               email: object@objectobject.ca
-          EOF
+          END_OF_FILE
+
+          cat <<END_OF_FILE > gatus-secrets.yml
+          alerting:
+            discord:
+              webhook-url: "${{ secrets.GATUS_DISCORD_WEBHOOK_URL }}"
+          END_OF_FILE
 
       - name: Upload deployment bundle to S3
         id: upload-bundle

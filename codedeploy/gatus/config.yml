@@ -24,27 +24,43 @@ ui:
     - name: Source
       link: https://github.com/object-Object/objectobject.ca
 
+alerting:
+  discord:
+    default-alert:
+      # deployments should be done within 5 minutes, hopefully
+      failure-threshold: 5
+      success-threshold: 5
+      send-on-resolved: true
+
 endpoints:
   - name: discord-github-utils-api
     group: discord-github-utils
     url: "https://ghutils.object.gay/api/health"
     conditions:
       - "[STATUS] == 200"
+    alerts:
+      - type: discord
 
   - name: discord-github-utils-docker
     <<: *docker
     group: discord-github-utils
     url: "${SOCKET_PROXY}/containers/discord-github-utils-bot-1/json"
+    alerts:
+      - type: discord
   
   - name: hexbug-prod-docker
     <<: *docker
     group: hexbug
     url: "${SOCKET_PROXY}/containers/hexbug-bot-1/json"
+    alerts:
+      - type: discord
   
   - name: hexbug-beta-docker
     <<: *docker
     group: hexbug
     url: "${SOCKET_PROXY}/containers/beta-hexbug-bot-1/json"
+    alerts:
+      - type: discord
 
   - name: hexxy.media-api
     group: hexxy.media
@@ -52,6 +68,8 @@ endpoints:
     conditions:
       - "[STATUS] == 200"
       - "[BODY].status == OK"
+    alerts:
+      - type: discord
 
   - name: hexxy.media-api-postgres
     group: hexxy.media
@@ -59,18 +77,24 @@ endpoints:
     conditions:
       - "[STATUS] == 200"
       - "[BODY].pattern == aqaa"
+    alerts:
+      - type: discord
 
   - name: hexxy.media-homepage
     group: hexxy.media
     url: https://hexxy.media
     conditions:
       - "[STATUS] == 200"
+    alerts:
+      - type: discord
 
   - name: fragments-wiki
     group: misc
     url: "https://fragments.objectobject.ca/wiki"
     conditions:
       - "[STATUS] == 200"
+    alerts:
+      - type: discord
 
   - name: object.gay-api
     group: object.gay
@@ -78,14 +102,20 @@ endpoints:
     conditions:
       - "[STATUS] == 200"
       - "[BODY].status == OK"
+    alerts:
+      - type: discord
 
   - name: object.gay-docker
     <<: *docker
     group: object.gay
     url: "${SOCKET_PROXY}/containers/object-gay-root-1/json"
+    alerts:
+      - type: discord
 
   - name: object.gay-zipline
     group: object.gay
     url: "https://see.object.gay"
     conditions:
       - "[STATUS] == 200"
+    alerts:
+      - type: discord

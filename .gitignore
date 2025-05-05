@@ -6,6 +6,7 @@ imports/*
 cdktf.out
 cdktf.log
 *terraform.*.tfstate*
+gatus-secrets.yml
 
 outputs.json
 
