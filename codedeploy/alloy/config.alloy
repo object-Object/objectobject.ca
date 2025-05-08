@@ -1,3 +1,5 @@
+// alloy meta-monitoring
+
 prometheus.exporter.self "alloy_check" { }
 
 discovery.relabel "alloy_check" {
@@ -35,6 +37,135 @@ prometheus.relabel "alloy_check" {
     action        = "keep"
   }
 }
+
+// linux metrics
+
+prometheus.exporter.unix "node_exporter" {
+  disable_collectors = ["ipvs", "btrfs", "infiniband", "xfs", "zfs"]
+  enable_collectors  = ["meminfo"]
+
+  filesystem {
+    fs_types_exclude     = "^(autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|tmpfs|fusectl|hugetlbfs|iso9660|mqueue|nsfs|overlay|proc|procfs|pstore|rpc_pipefs|securityfs|selinuxfs|squashfs|sysfs|tracefs)$"
+    mount_points_exclude = "^/(dev|proc|run/credentials/.+|sys|var/lib/docker/.+)($|/)"
+    mount_timeout        = "5s"
+  }
+
+  netclass {
+    ignored_devices = "^(veth.*|cali.*|[a-f0-9]{15})$"
+  }
+
+  netdev {
+    device_exclude = "^(veth.*|cali.*|[a-f0-9]{15})$"
+  }
+}
+
+discovery.relabel "node_exporter" {
+  targets = prometheus.exporter.unix.node_exporter.targets
+
+  rule {
+    target_label = "instance"
+    replacement  = constants.hostname
+  }
+
+  rule {
+    target_label = "job"
+    replacement  = "integrations/node_exporter"
+  }
+}
+
+prometheus.scrape "node_exporter" {
+  targets    = discovery.relabel.node_exporter.output
+  forward_to = [prometheus.remote_write.grafana_cloud.receiver]
+
+  scrape_interval = "60s"
+}
+
+// linux logs
+
+discovery.relabel "logs_journal_scrape" {
+  targets = []
+
+  rule {
+    source_labels = ["__journal__systemd_unit"]
+    target_label  = "unit"
+  }
+
+  rule {
+    source_labels = ["__journal__boot_id"]
+    target_label  = "boot_id"
+  }
+
+  rule {
+    source_labels = ["__journal__transport"]
+    target_label  = "transport"
+  }
+
+  rule {
+    source_labels = ["__journal_priority_keyword"]
+    target_label  = "level"
+  }
+}
+
+loki.source.journal "logs_journal_scrape" {
+  max_age       = "24h0m0s"
+  relabel_rules = discovery.relabel.logs_journal_scrape.rules
+  forward_to    = [loki.write.grafana_cloud.receiver]
+}
+
+local.file_match "logs_direct_scrape" {
+  path_targets = [{
+    __address__ = "localhost",
+    __path__    = "/var/log/{syslog,messages,*.log}",
+    instance    = constants.hostname,
+    job         = "integrations/node_exporter",
+  }]
+}
+
+loki.source.file "logs_direct_scrape" {
+  targets    = local.file_match.logs_direct_scrape.targets
+  forward_to = [loki.write.grafana_cloud.receiver]
+}
+
+// docker metrics
+
+prometheus.exporter.cadvisor "cadvisor" {
+  docker_host = "unix:///var/run/docker.sock"
+
+  storage_duration = "5m"
+}
+
+prometheus.scrape "cadvisor" {
+  targets    = prometheus.exporter.cadvisor.cadvisor.targets
+  forward_to = [prometheus.remote_write.grafana_cloud.receiver]
+
+  scrape_interval = "60s"
+}
+
+// docker logs
+
+discovery.docker "logs_docker" {
+  host = "unix:///var/run/docker.sock"
+}
+
+discovery.relabel "logs_docker" {
+  targets = []
+
+  rule {
+    source_labels = ["__meta_docker_container_name"]
+    regex         = "/(.*)"
+    target_label  = "service_name"
+  }
+}
+
+loki.source.docker "logs_docker" {
+  host       = "unix:///var/run/docker.sock"
+  targets    = discovery.docker.logs_docker.targets
+  labels     = {"platform" = "docker"}
+  relabel_rules = discovery.relabel.logs_docker.rules
+  forward_to = [loki.write.grafana_cloud.receiver]
+}
+
+// grafana cloud endpoints
 
 prometheus.remote_write "grafana_cloud" {
   endpoint {
