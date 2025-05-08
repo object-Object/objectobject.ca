@@ -3,6 +3,22 @@ os: linux
 files:
   - source: /
     destination: /var/lib/codedeploy-apps/objectobject-ca
+  - source: alloy
+    destination: /etc/alloy
+permissions:
+  - object: /etc/alloy
+    pattern: "*.alloy"
+    owner: root
+    group: root
+    mode: 644
+    type:
+      - file
+  - object: /etc/alloy/secrets
+    owner: root
+    group: root
+    mode: 600
+    type:
+      - file
 file_exists_behavior: OVERWRITE
 hooks:
   ApplicationStop:

@@ -105,6 +105,12 @@ jobs:
               webhook-url: "${{ secrets.GATUS_DISCORD_WEBHOOK_URL }}"
           END_OF_FILE
 
+          mkdir -p alloy/secrets
+
+          cat <<END_OF_FILE > alloy/secrets/grafana_cloud_api_key
+          ${{ secrets.GRAFANA_CLOUD_API_KEY }}
+          END_OF_FILE
+
       - name: Upload deployment bundle to S3
         id: upload-bundle
         run: |
