@@ -15,8 +15,8 @@ permissions:
       - file
   - object: /etc/alloy/secrets
     owner: root
-    group: root
-    mode: 600
+    group: alloy
+    mode: 640
     type:
       - file
 file_exists_behavior: OVERWRITE
