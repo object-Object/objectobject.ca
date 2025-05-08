@@ -152,39 +152,75 @@ loki.source.file "logs_direct_scrape" {
 
 // docker integration
 
-prometheus.exporter.cadvisor "cadvisor" {
-  docker_host = "unix:///var/run/docker.sock"
-
-  storage_duration = "5m"
+prometheus.exporter.cadvisor "integrations_cadvisor" {
+  docker_only = true
 }
 
-prometheus.scrape "cadvisor" {
-  targets    = prometheus.exporter.cadvisor.cadvisor.targets
-  forward_to = [prometheus.remote_write.grafana_cloud.receiver]
+discovery.relabel "integrations_cadvisor" {
+  targets = prometheus.exporter.cadvisor.integrations_cadvisor.targets
 
-  scrape_interval = "60s"
+  rule {
+    target_label = "instance"
+    replacement  = constants.hostname
+  }
+
+  rule {
+    target_label = "job"
+    replacement  = "integrations/docker"
+  }
 }
 
-discovery.docker "logs_docker" {
-  host = "unix:///var/run/docker.sock"
+prometheus.scrape "integrations_cadvisor" {
+  targets    = discovery.relabel.integrations_cadvisor.output
+  forward_to = [prometheus.relabel.integrations_cadvisor.receiver]
 }
 
-discovery.relabel "logs_docker" {
+prometheus.relabel "integrations_cadvisor" {
+	forward_to = [prometheus.remote_write.grafana_cloud.receiver]
+
+	rule {
+		source_labels = ["__name__"]
+		regex         = "up|container_cpu_usage_seconds_total|container_fs_inodes_free|container_fs_inodes_total|container_fs_limit_bytes|container_fs_usage_bytes|container_last_seen|container_memory_usage_bytes|container_network_receive_bytes_total|container_network_tcp_usage_total|container_network_transmit_bytes_total|container_spec_memory_reservation_limit_bytes|machine_memory_bytes|machine_scrape_error"
+		action        = "keep"
+	}
+}
+
+discovery.docker "logs_integrations_docker" {
+  host             = "unix:///var/run/docker.sock"
+  refresh_interval = "15s"
+}
+
+discovery.relabel "logs_integrations_docker" {
   targets = []
+
+  rule {
+    target_label = "instance"
+    replacement  = constants.hostname
+  }
+
+  rule {
+    target_label = "job"
+    replacement  = "integrations/docker"
+  }
 
   rule {
     source_labels = ["__meta_docker_container_name"]
     regex         = "/(.*)"
-    target_label  = "service_name"
+    target_label  = "container"
+  }
+
+  rule {
+    source_labels = ["__meta_docker_container_log_stream"]
+    target_label  = "stream"
   }
 }
 
-loki.source.docker "logs_docker" {
-  host       = "unix:///var/run/docker.sock"
-  targets    = discovery.docker.logs_docker.targets
-  labels     = {"platform" = "docker"}
-  relabel_rules = discovery.relabel.logs_docker.rules
-  forward_to = [loki.write.grafana_cloud.receiver]
+loki.source.docker "logs_integrations_docker" {
+  host             = "unix:///var/run/docker.sock"
+  targets          = discovery.docker.logs_integrations_docker.targets
+  forward_to       = [loki.write.grafana_cloud.receiver]
+  relabel_rules    = discovery.relabel.logs_integrations_docker.rules
+  refresh_interval = "15s"
 }
 
 // grafana cloud endpoints
