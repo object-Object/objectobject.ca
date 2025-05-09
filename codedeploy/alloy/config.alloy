@@ -223,6 +223,27 @@ loki.source.docker "logs_integrations_docker" {
   refresh_interval = "15s"
 }
 
+// docker_state_exporter
+
+prometheus.scrape "docker_state_exporter" {
+  targets    = [{"__address__" = "127.0.0.1:5202"}]
+  forward_to = [prometheus.relabel.docker_state_exporter.receiver]
+}
+
+prometheus.relabel "docker_state_exporter" {
+	forward_to = [prometheus.remote_write.grafana_cloud.receiver]
+
+  rule {
+    target_label = "instance"
+    replacement  = constants.hostname
+  }
+
+  rule {
+    target_label = "job"
+    replacement  = "integrations/docker"
+  }
+}
+
 // grafana cloud endpoints
 
 prometheus.remote_write "grafana_cloud" {
