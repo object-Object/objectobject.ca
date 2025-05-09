@@ -29,7 +29,7 @@ alerting:
     default-alert:
       # deployments should be done within 5 minutes, hopefully
       failure-threshold: 5
-      success-threshold: 5
+      success-threshold: 3
       send-on-resolved: true
 
 endpoints:
