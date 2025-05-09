@@ -228,6 +228,8 @@ loki.source.docker "logs_integrations_docker" {
 prometheus.scrape "docker_state_exporter" {
   targets    = [{"__address__" = "127.0.0.1:5202"}]
   forward_to = [prometheus.relabel.docker_state_exporter.receiver]
+
+  scrape_interval = "15s"
 }
 
 prometheus.relabel "docker_state_exporter" {
