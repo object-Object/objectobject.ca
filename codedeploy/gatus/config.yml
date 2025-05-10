@@ -132,6 +132,14 @@ endpoints:
     alerts:
       - type: discord
 
+  - name: fragments-wiki
+    group: objectobject.ca
+    url: "https://fragments.objectobject.ca/wiki"
+    conditions:
+      - "[STATUS] == 200"
+    alerts:
+      - type: discord
+
   - name: homepage
     group: objectobject.ca
     url: "https://objectobject.ca"
@@ -147,13 +155,5 @@ endpoints:
       ignore-redirect: true
     conditions:
       - "[STATUS] == 302"
-    alerts:
-      - type: discord
-
-  - name: fragments-wiki
-    group: objectobject.ca
-    url: "https://fragments.objectobject.ca/wiki"
-    conditions:
-      - "[STATUS] == 200"
     alerts:
       - type: discord
