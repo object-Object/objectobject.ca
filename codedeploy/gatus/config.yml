@@ -33,7 +33,7 @@ alerting:
       send-on-resolved: true
 
 endpoints:
-  - name: discord-github-utils-api
+  - name: api
     group: discord-github-utils
     url: "https://ghutils.object.gay/api/health"
     conditions:
@@ -41,28 +41,28 @@ endpoints:
     alerts:
       - type: discord
 
-  - name: discord-github-utils-docker
-    <<: *docker
+  - name: docker
     group: discord-github-utils
+    <<: *docker
     url: "${SOCKET_PROXY}/containers/discord-github-utils-bot-1/json"
     alerts:
       - type: discord
   
-  - name: hexbug-prod-docker
-    <<: *docker
+  - name: prod-docker
     group: hexbug
+    <<: *docker
     url: "${SOCKET_PROXY}/containers/hexbug-bot-1/json"
     alerts:
       - type: discord
   
-  - name: hexbug-beta-docker
-    <<: *docker
+  - name: beta-docker
     group: hexbug
+    <<: *docker
     url: "${SOCKET_PROXY}/containers/beta-hexbug-bot-1/json"
     alerts:
       - type: discord
 
-  - name: hexxy.media-api
+  - name: api
     group: hexxy.media
     url: "https://hexxy.media/api/v0/health"
     conditions:
@@ -71,7 +71,7 @@ endpoints:
     alerts:
       - type: discord
 
-  - name: hexxy.media-api-postgres
+  - name: postgres
     group: hexxy.media
     url: "https://hexxy.media/api/v0/pattern/number/0"
     conditions:
@@ -80,7 +80,7 @@ endpoints:
     alerts:
       - type: discord
 
-  - name: hexxy.media-homepage
+  - name: homepage
     group: hexxy.media
     url: https://hexxy.media
     conditions:
@@ -88,15 +88,7 @@ endpoints:
     alerts:
       - type: discord
 
-  - name: fragments-wiki
-    group: misc
-    url: "https://fragments.objectobject.ca/wiki"
-    conditions:
-      - "[STATUS] == 200"
-    alerts:
-      - type: discord
-
-  - name: object.gay-api
+  - name: api
     group: object.gay
     url: "https://object.gay/health"
     conditions:
@@ -105,14 +97,14 @@ endpoints:
     alerts:
       - type: discord
 
-  - name: object.gay-docker
-    <<: *docker
+  - name: docker
     group: object.gay
+    <<: *docker
     url: "${SOCKET_PROXY}/containers/object-gay-root-1/json"
     alerts:
       - type: discord
 
-  - name: object.gay-homepage
+  - name: homepage
     group: object.gay
     url: "https://object.gay"
     conditions:
@@ -122,7 +114,7 @@ endpoints:
     alerts:
       - type: discord
 
-  - name: object.gay-homepage-redirect
+  - name: homepage-redirect
     group: object.gay
     url: "https://object.gay"
     client:
@@ -132,7 +124,7 @@ endpoints:
     alerts:
       - type: discord
 
-  - name: object.gay-zipline
+  - name: zipline
     group: object.gay
     url: "https://see.object.gay"
     conditions:
@@ -140,7 +132,7 @@ endpoints:
     alerts:
       - type: discord
 
-  - name: objectobject.ca-homepage
+  - name: homepage
     group: objectobject.ca
     url: "https://objectobject.ca"
     conditions:
@@ -148,12 +140,20 @@ endpoints:
     alerts:
       - type: discord
 
-  - name: objectobject.ca-homepage-http
+  - name: homepage-http
     group: objectobject.ca
     url: "http://objectobject.ca"
     client:
       ignore-redirect: true
     conditions:
       - "[STATUS] == 302"
+    alerts:
+      - type: discord
+
+  - name: fragments-wiki
+    group: objectobject.ca
+    url: "https://fragments.objectobject.ca/wiki"
+    conditions:
+      - "[STATUS] == 200"
     alerts:
       - type: discord
