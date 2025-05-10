@@ -112,10 +112,48 @@ endpoints:
     alerts:
       - type: discord
 
+  - name: object.gay-homepage
+    group: object.gay
+    url: "https://object.gay"
+    conditions:
+      - "[STATUS] == 200"
+      # FIXME: hack
+      - '[BODY] == pat(*<meta property="og:url" content="https://github.com/object-Object"*)'
+    alerts:
+      - type: discord
+
+  - name: object.gay-homepage-redirect
+    group: object.gay
+    url: "https://object.gay"
+    client:
+      ignore-redirect: true
+    conditions:
+      - "[STATUS] == 302"
+    alerts:
+      - type: discord
+
   - name: object.gay-zipline
     group: object.gay
     url: "https://see.object.gay"
     conditions:
       - "[STATUS] == 200"
+    alerts:
+      - type: discord
+
+  - name: objectobject.ca-homepage
+    group: objectobject.ca
+    url: "https://objectobject.ca"
+    conditions:
+      - "[STATUS] == 200"
+    alerts:
+      - type: discord
+
+  - name: objectobject.ca-homepage-http
+    group: objectobject.ca
+    url: "http://objectobject.ca"
+    client:
+      ignore-redirect: true
+    conditions:
+      - "[STATUS] == 302"
     alerts:
       - type: discord
