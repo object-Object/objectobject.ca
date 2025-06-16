@@ -5,7 +5,11 @@ cd /var/lib/codedeploy-apps/objectobject-ca
 
 # grafana alloy
 
-sudo systemctl reload alloy
+if sudo systemctl is-active --quiet alloy ; then
+    sudo systemctl reload alloy
+else
+    sudo systemctl start alloy
+fi
 
 # application
 
