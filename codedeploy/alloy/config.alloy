@@ -106,6 +106,12 @@ prometheus.scrape "integrations_node_exporter" {
   scrape_interval = "60s"
 }
 
+loki.source.journal "logs_integrations_node_exporter_journal" {
+  max_age       = "24h0m0s"
+  relabel_rules = discovery.relabel.logs_integrations_node_exporter_journal.rules
+  forward_to    = [loki.write.grafana_cloud.receiver]
+}
+
 discovery.relabel "logs_integrations_node_exporter_journal" {
   targets = []
 
@@ -130,19 +136,33 @@ discovery.relabel "logs_integrations_node_exporter_journal" {
   }
 }
 
-loki.source.journal "logs_integrations_node_exporter_journal" {
-  max_age       = "24h0m0s"
-  relabel_rules = discovery.relabel.logs_integrations_node_exporter_journal.rules
-  forward_to    = [loki.write.grafana_cloud.receiver]
-}
-
 local.file_match "logs_integrations_node_exporter_direct" {
-  path_targets = [{
-    __address__ = "localhost",
-    __path__    = "/var/log/{syslog,messages,*.log}",
-    instance    = constants.hostname,
-    job         = "integrations/node_exporter",
-  }]
+  path_targets = [
+    {
+      __address__ = "localhost",
+      __path__    = "/var/log/{syslog,messages,*.log}",
+      instance    = constants.hostname,
+      job         = "integrations/node_exporter",
+    },
+    {
+      __address__ = "localhost",
+      __path__    = "/var/log/aws/codedeploy-agent/codedeploy-agent.log",
+      instance    = constants.hostname,
+      job         = "integrations/node_exporter",
+    },
+    {
+      __address__ = "localhost",
+      __path__    = "/opt/codedeploy-agent/deployment-root/deployment-logs/codedeploy-agent-deployments.log",
+      instance    = constants.hostname,
+      job         = "integrations/node_exporter",
+    },
+    {
+      __address__ = "localhost",
+      __path__    = "/opt/codedeploy-agent/deployment-root/*/*/logs/scripts.log",
+      instance    = constants.hostname,
+      job         = "integrations/node_exporter",
+    },
+  ]
 }
 
 loki.source.file "logs_integrations_node_exporter_direct" {
