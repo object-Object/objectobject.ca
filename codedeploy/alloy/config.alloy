@@ -149,7 +149,7 @@ loki.source.file "logs_integrations_node_exporter_direct" {
   forward_to = [loki.relabel.logs_integrations_node_exporter_direct]
 }
 
-local.file.match "logs_integrations_node_exporter_codedeploy" {
+local.file_match "logs_integrations_node_exporter_codedeploy" {
   path_targets = [
     {__path__ = "/opt/codedeploy-agent/deployment-root/*/*/logs/scripts.log"},
   ]
