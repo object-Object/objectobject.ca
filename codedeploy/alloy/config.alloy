@@ -146,7 +146,7 @@ local.file_match "logs_integrations_node_exporter_direct" {
 
 loki.source.file "logs_integrations_node_exporter_direct" {
   targets    = local.file_match.logs_integrations_node_exporter_direct.targets
-  forward_to = [loki.relabel.logs_integrations_node_exporter_direct]
+  forward_to = [loki.relabel.logs_integrations_node_exporter_direct.receiver]
 }
 
 local.file_match "logs_integrations_node_exporter_codedeploy" {
@@ -157,11 +157,11 @@ local.file_match "logs_integrations_node_exporter_codedeploy" {
 
 loki.source.file "logs_integrations_node_exporter_codedeploy" {
   targets    = local.file_match.logs_integrations_node_exporter_codedeploy.targets
-  forward_to = [loki.process.logs_integrations_node_exporter_codedeploy]
+  forward_to = [loki.process.logs_integrations_node_exporter_codedeploy.receiver]
 }
 
 loki.process "logs_integrations_node_exporter_codedeploy" {
-  forward_to = [loki.relabel.logs_integrations_node_exporter_direct]
+  forward_to = [loki.relabel.logs_integrations_node_exporter_direct.receiver]
 
   stage.regex {
     expression = "/opt/codedeploy-agent/deployment-root/(?P<deployment_group_id>[^/]+)/(?P<deployment_id>[^/]+)/logs/scripts.log"
