@@ -1,6 +1,5 @@
 import logging
 import os
-from typing import Any
 
 import cdktf
 from cdktf_cdktf_provider_cloudflare import provider, record
@@ -72,6 +71,16 @@ class TerraformStack(cdktf.TerraformStack):
                     value=value,
                 )
 
+        # Azure directory custom domain
+        create_record(
+            self,
+            zone_id=zone_id,
+            type="TXT",
+            name="@",
+            value="MS=ms21534022",
+            ttl=3600,
+        )
+
         # MX records (email forwarding)
         for value in [
             "mx4.emailowl.com",
@@ -110,7 +119,7 @@ def create_record(
     value: str,
     priority: int | None = None,
     proxied: bool = False,
-    **kwargs: Any,
+    ttl: int | None = None,
 ):
     match name:
         case "@":
@@ -132,5 +141,5 @@ def create_record(
         value=value,
         priority=priority,
         proxied=proxied,
-        **kwargs,
+        ttl=ttl,
     )
