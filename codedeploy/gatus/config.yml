@@ -51,7 +51,7 @@ endpoints:
   - name: prod-docker
     group: hexbug
     <<: *docker
-    url: "${SOCKET_PROXY}/containers/hexbug-bot-1/json"
+    url: "${SOCKET_PROXY}/containers/prod-hexbug-bot-1/json"
     alerts:
       - type: discord
   
