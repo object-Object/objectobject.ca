@@ -1,5 +1,23 @@
 # objectobject.ca
 
+Monorepo for https://objectobject.ca, including many services and resources that are deployed to my VPS or AWS account and don't belong in any other repository.
+
+## Repository structure
+
+- [.github/workflows/deploy.yml](./.github/workflows/deploy.yml): Deployment workflow for objectobject.ca. Runs on every push to main.
+- [codedeploy/](./codedeploy): Files in this directory are uploaded to S3 and deployed to the VPS. Some files are generated and added to this directory by the deployment workflow.
+  - [alloy/config.alloy](./codedeploy/alloy/config.alloy): Config file for [Grafana Alloy](https://grafana.com/docs/alloy/latest/). This sets up exporting of metrics and logs to Grafana Cloud for many services on my VPS.
+  - [gatus/config.yml](./codedeploy/gatus/config.yml): Config file for https://status.objectobject.ca.
+  - [hooks/](./codedeploy/hooks): Bash scripts executed by CodeDeploy during the deployment process.
+  - [appspec.yml](./codedeploy/appspec.yml): [AppSpec file](https://docs.aws.amazon.com/codedeploy/latest/userguide/reference-appspec-file.html) for CodeDeploy. Configures where to copy files and what hooks to execute during a deployment.
+  - [compose.override.yml](./codedeploy/compose.override.yml): Development-only configs for Docker Compose.
+  - [compose.yml](./codedeploy/compose.yml): Base Docker Compose file for objectobject.ca. This is where most Docker configuration happens, other than a few development- or production-only settings.
+- [src/objectobject_ca/](./src/objectobject_ca): Root directory for the `objectobject_ca` Python package.
+  - [aws/](./src/objectobject_ca/aws): [AWS CDK](https://aws.amazon.com/cdk/) application for objectobject.ca. This deploys several global resources for my AWS account (eg. the S3 bucket where all CodeDeploy deployment bundles are uploaded), as well as the [CodeDeploy application](https://docs.aws.amazon.com/codedeploy/latest/userguide/applications.html) and [IAM role](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles.html) that are used for deploying the services in this repository.
+  - [common/](./src/objectobject_ca/common): Dependency-free utilities for other packages.
+  - [terraform/](./src/objectobject_ca/terraform): [CDKTF](https://developer.hashicorp.com/terraform/cdktf) (CDK for Terraform) application for objectobject.ca. This deploys DNS records to Cloudflare for the objectobject.ca domain.
+- [compose.override.yml](./compose.override.yml): Development-only configs for Docker Compose.
+
 ## Instance setup
 
 Source: https://docs.aws.amazon.com/codedeploy/latest/userguide/register-on-premises-instance-iam-session-arn.html
