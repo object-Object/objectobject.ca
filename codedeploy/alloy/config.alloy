@@ -279,6 +279,32 @@ prometheus.relabel "docker_state_exporter" {
   }
 }
 
+// pm2-metrics (manually installed on server)
+// https://github.com/saikatharryc/pm2-prometheus-exporter
+
+prometheus.scrape "pm2_metrics" {
+  targets    = [{"__address__" = "127.0.0.1:9209"}]
+  forward_to = [prometheus.relabel.pm2_metrics.receiver]
+
+  scrape_interval = "15s"
+  metrics_path    = "/metrics"
+  scheme          = "http"
+}
+
+prometheus.relabel "pm2_metrics" {
+	forward_to = [prometheus.remote_write.grafana_cloud.receiver]
+
+  rule {
+    target_label = "instance"
+    replacement  = constants.hostname
+  }
+
+  rule {
+    target_label = "job"
+    replacement  = "pm2_metrics"
+  }
+}
+
 // grafana cloud endpoints
 
 prometheus.remote_write "grafana_cloud" {
