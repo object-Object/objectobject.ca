@@ -1,6 +1,6 @@
 services:
   dozzle:
-    image: amir20/dozzle:latest
+    image: amir20/dozzle:v6.5.2
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     secrets:
@@ -20,9 +20,9 @@ services:
       timeout: 30s
       retries: 5
       start_period: 60s
-  
+
   gatus:
-    image: twinproduction/gatus:latest
+    image: twinproduction/gatus:v5.18.0
     ports:
       - 5201:8080
     environment:
@@ -39,7 +39,7 @@ services:
       - socket-proxy
 
   socket-proxy:
-    image: lscr.io/linuxserver/socket-proxy:latest
+    image: lscr.io/linuxserver/socket-proxy:3.0.10
     container_name: socket-proxy
     environment:
       - CONTAINERS=1
@@ -49,9 +49,9 @@ services:
     read_only: true
     tmpfs:
       - /run
-  
+
   docker-state-exporter:
-    image: karugaru/docker_state_exporter
+    image: karugaru/docker_state_exporter@sha256:99d984a57dd11d0d3b53d56481dec51be7a0ad7c2a7aa80a95db2facd294c60a
     volumes:
       - type: bind
         source: /var/run/docker.sock
