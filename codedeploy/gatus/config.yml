@@ -132,6 +132,14 @@ endpoints:
     alerts:
       - type: discord
 
+  - name: cloud-catcher
+    group: object.gay
+    url: "https://cloud-catcher.object.gay"
+    conditions:
+      - "[STATUS] == 200"
+    alerts:
+      - type: discord
+
   - name: fragments-wiki
     group: objectobject.ca
     url: "https://fragments.objectobject.ca/wiki"
