@@ -305,6 +305,65 @@ prometheus.relabel "pm2_metrics" {
   }
 }
 
+// Discord bots
+// https://github.com/Apollo-Roboto/discord.py-ext-prometheus
+
+prometheus.scrape "discord_hexbug_beta" {
+  targets    = [{"__address__" = "127.0.0.1:6500"}]
+  forward_to = [prometheus.relabel.discord_hexbug_beta.receiver]
+
+  scrape_interval = "15s"
+  metrics_path    = "/metrics"
+  scheme          = "http"
+}
+
+prometheus.relabel "discord_hexbug_beta" {
+	forward_to = [prometheus.remote_write.grafana_cloud.receiver]
+
+  rule {
+    target_label = "instance"
+    replacement  = constants.hostname
+  }
+
+  rule {
+    target_label = "job"
+    replacement  = "discord"
+  }
+
+  rule {
+    target_label = "bot"
+    replacement = "hexbug_beta"
+  }
+}
+
+prometheus.scrape "discord_hexbug_prod" {
+  targets    = [{"__address__" = "127.0.0.1:6501"}]
+  forward_to = [prometheus.relabel.discord_hexbug_prod.receiver]
+
+  scrape_interval = "15s"
+  metrics_path    = "/metrics"
+  scheme          = "http"
+}
+
+prometheus.relabel "discord_hexbug_prod" {
+	forward_to = [prometheus.remote_write.grafana_cloud.receiver]
+
+  rule {
+    target_label = "instance"
+    replacement  = constants.hostname
+  }
+
+  rule {
+    target_label = "job"
+    replacement  = "discord"
+  }
+
+  rule {
+    target_label = "bot"
+    replacement = "hexbug_prod"
+  }
+}
+
 // grafana cloud endpoints
 
 prometheus.remote_write "grafana_cloud" {
