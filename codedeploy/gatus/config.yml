@@ -47,6 +47,15 @@ endpoints:
     url: "${SOCKET_PROXY}/containers/discord-github-utils-bot-1/json"
     alerts:
       - type: discord
+
+  - name: prod-api
+    group: hexbug
+    url: "https://hexbug.hexxy.media/api/health"
+    conditions:
+      - "[STATUS] == 200"
+      - "[BODY].status == OK"
+    alerts:
+      - type: discord
   
   - name: prod-docker
     group: hexbug
@@ -54,7 +63,16 @@ endpoints:
     url: "${SOCKET_PROXY}/containers/prod-hexbug-bot-1/json"
     alerts:
       - type: discord
-  
+
+  - name: beta-api
+    group: hexbug
+    url: "https://hexbug-beta.hexxy.media/api/health"
+    conditions:
+      - "[STATUS] == 200"
+      - "[BODY].status == OK"
+    alerts:
+      - type: discord
+
   - name: beta-docker
     group: hexbug
     <<: *docker
