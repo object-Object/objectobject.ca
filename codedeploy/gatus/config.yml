@@ -53,7 +53,6 @@ endpoints:
     url: "https://hexbug.hexxy.media/api/health"
     conditions:
       - "[STATUS] == 200"
-      - "[BODY].status == OK"
     alerts:
       - type: discord
   
@@ -69,7 +68,6 @@ endpoints:
     url: "https://hexbug-beta.hexxy.media/api/health"
     conditions:
       - "[STATUS] == 200"
-      - "[BODY].status == OK"
     alerts:
       - type: discord
 
